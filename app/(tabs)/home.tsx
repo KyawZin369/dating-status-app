@@ -1,4 +1,5 @@
-import { Colors } from "@/constants/Colors";
+import Search from "@/components/SearchBar";
+import { Colors, Fonts } from "@/constants/Colors";
 import Context from "@/context/Context";
 import { Ionicons } from "@expo/vector-icons";
 import { ResizeMode, Video } from "expo-av";
@@ -19,9 +20,9 @@ const { height } = Dimensions.get("window");
 const videoHeight =
   Platform.OS === "ios"
     ? height - (Platform.OS === "ios" ? 175 : 0)
-    : height - StatusBar.currentHeight! - 175;
+    : height - StatusBar.currentHeight! - 90;
 
-console.log("Video Height:", videoHeight);
+// console.log("Video Height:", videoHeight);
 
 const initialData = [
   {
@@ -59,6 +60,7 @@ const initialData = [
 const Home = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [videos, setVideos] = useState(initialData);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const contextState = useContext(Context);
   const theme = contextState?.theme ?? "light";
@@ -75,7 +77,7 @@ const Home = () => {
     videoContainer: {
       width: "100%",
       height: videoHeight,
-      backgroundColor: "black",
+      // backgroundColor: "black",
     },
     video: {
       width: "100%",
@@ -90,22 +92,40 @@ const Home = () => {
     },
     iconButton: {
       alignItems: "center",
+      justifyContent: "flex-start",
       color: theme === "dark" ? Colors.dark.text : Colors.light.text,
     },
     text: {
       color: theme === "dark" ? Colors.dark.text : Colors.light.text,
       fontSize: 12,
+      fontWeight: "500",
       marginTop: 4,
+      fontFamily: Fonts.regular,
+    },
+    profileName: {
+      color: theme === "dark" ? Colors.dark.text : Colors.light.text,
+      fontSize: 16,
+      fontWeight: "600",
+      fontFamily: Fonts.semiBold,
+      marginLeft: 20,
+    },
+    profileOverlay: {
+      position: "absolute",
+      alignItems: "flex-start",
+      bottom: 0,
+      left: 0,
+      width: "100%",
+      height: "17%",
     },
   });
 
-  // const toggleLike = (index) => {
-  //   const updatedVideos = [...videos];
-  //   const video = updatedVideos[index];
-  //   video.isLiked = !video.isLiked;
-  //   video.likes += video.isLiked ? 1 : -1;
-  //   setVideos(updatedVideos);
-  // };
+  const toggleLike = (index: any) => {
+    const updatedVideos = [...videos];
+    const video = updatedVideos[index];
+    video.isLiked = !video.isLiked;
+    video.likes += video.isLiked ? 1 : -1;
+    setVideos(updatedVideos);
+  };
 
   const renderItem = ({ item, index }: any) => (
     <View style={styles.videoContainer}>
@@ -121,7 +141,7 @@ const Home = () => {
       {/* Overlay UI */}
       <View style={styles.overlay}>
         <TouchableOpacity
-          // onPress={() => toggleLike(index)}
+          onPress={() => toggleLike(index)}
           style={styles.iconButton}
         >
           <Ionicons
@@ -131,10 +151,10 @@ const Home = () => {
               theme === "dark"
                 ? item.isLiked
                   ? "red"
-                  : "white"
+                  : Colors.dark.icon
                 : item.isLiked
                 ? "red"
-                : "black"
+                : Colors.light.icon
             }
             // selectionColor={item.isLiked ? "red" : "black"}
           />
@@ -148,7 +168,7 @@ const Home = () => {
           <Ionicons
             name="chatbubble-outline"
             size={30}
-            color={theme === "dark" ? Colors.dark.text : Colors.light.text}
+            color={theme === "dark" ? Colors.dark.icon : Colors.light.icon}
           />
           <Text style={styles.text}>Comment</Text>
         </TouchableOpacity>
@@ -160,16 +180,56 @@ const Home = () => {
           <Ionicons
             name="paper-plane-outline"
             size={30}
-            color={theme === "dark" ? Colors.dark.text : Colors.light.text}
+            color={theme === "dark" ? Colors.dark.icon : Colors.light.icon}
           />
           <Text style={styles.text}>Message</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.profileOverlay}>
+        <TouchableOpacity style={styles.iconButton}>
+          <View
+            style={{
+              alignItems: "center",
+              flexDirection: "row",
+            }}
+          >
+            <Ionicons
+              name="person-circle-sharp"
+              size={40}
+              color={theme === "dark" ? Colors.dark.icon : Colors.light.icon}
+            />
+            <Text style={styles.profileName}>Kyaw Zin Thet</Text>
+          </View>
+          <View
+            style={[
+              styles.text,
+              {
+                marginTop: 20,
+              },
+            ]}
+          >
+            <Text style={[styles.text, { marginLeft: 43, fontSize: 13 }]}>
+              Hello My name is Kyaw Zin Thet
+            </Text>
+          </View>
         </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor:
+          theme === "dark"
+            ? Colors.dark.mainBackground
+            : Colors.light.mainBackground,
+      }}
+    >
+      {!isScrolled && <View></View>}
+      <Search />
+
       <FlatList
         data={videos}
         keyExtractor={(item) => item.id}
@@ -178,6 +238,10 @@ const Home = () => {
         showsVerticalScrollIndicator={false}
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={viewConfigRef.current}
+        onScroll={(event) => {
+          const offsetY = event.nativeEvent.contentOffset.y;
+          setIsScrolled(offsetY > 0);
+        }}
       />
     </SafeAreaView>
   );

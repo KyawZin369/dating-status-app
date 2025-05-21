@@ -2,9 +2,15 @@ import { Colors } from "@/constants/Colors";
 import Context from "@/context/Context";
 import { Ionicons } from "@expo/vector-icons";
 import { useContext } from "react";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Platform, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
-export default function CustomHeader({ tabName }: { tabName: string }) {
+export default function CustomHeader({
+  tabName,
+  setTheme,
+}: {
+  tabName: string;
+  setTheme: (theme: string) => void;
+}) {
   const context = useContext(Context);
   const theme = context?.theme ?? "light";
 
@@ -16,12 +22,33 @@ export default function CustomHeader({ tabName }: { tabName: string }) {
     <SafeAreaView style={[styles.headerContainer, { backgroundColor }]}>
       <View style={styles.headerContent}>
         <View style={styles.left}>
-          {/* <Ionicons name="apps" size={20} color={textColor} /> */}
+          {theme === "dark" ? (
+            <Ionicons
+              name="sunny-sharp"
+              size={20}
+              color={textColor}
+              onPress={() => setTheme("light")}
+            />
+          ) : (
+            <Ionicons
+              name="moon-sharp"
+              size={20}
+              color={textColor}
+              onPress={() => setTheme("dark")}
+            />
+          )}
+        </View>
+        <View style={styles.left}>
           <Text style={[styles.tabText, { color: textColor }]}>{tabName}</Text>
         </View>
         <View style={styles.left}>
           <Ionicons name="notifications" size={24} color={textColor} />
-          <Ionicons name="person-circle-sharp" size={24} color={textColor} />
+          {/* <Ionicons name="person-circle-sharp" size={24} color={textColor} /> */}
+          <Ionicons
+            name="ellipsis-vertical-sharp"
+            size={20}
+            color={textColor}
+          />
         </View>
       </View>
     </SafeAreaView>
@@ -30,8 +57,8 @@ export default function CustomHeader({ tabName }: { tabName: string }) {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingTop: Platform.OS === "android" ? 10 : 0,
+    paddingBottom: Platform.OS === "android" ? 5 : 20,
     elevation: 4,
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -48,7 +75,7 @@ const styles = StyleSheet.create({
   left: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 20,
   },
   tabText: {
     fontSize: 20,
