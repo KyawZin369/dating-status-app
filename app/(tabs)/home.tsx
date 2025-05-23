@@ -3,7 +3,7 @@ import { Colors, Fonts } from "@/constants/Colors";
 import Context from "@/context/Context";
 import { Ionicons } from "@expo/vector-icons";
 import { ResizeMode, Video } from "expo-av";
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -15,14 +15,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { height } = Dimensions.get("window");
-const videoHeight =
-  Platform.OS === "ios"
-    ? height - (Platform.OS === "ios" ? 175 : 0)
-    : height - StatusBar.currentHeight! - 90;
 
 // console.log("Video Height:", videoHeight);
+// console.log('status bar :', Stat)
 
 const initialData = [
   {
@@ -61,6 +59,19 @@ const Home = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [videos, setVideos] = useState(initialData);
   const [isScrolled, setIsScrolled] = useState(false);
+  const insets = useSafeAreaInsets();
+
+  const videoHeight = useMemo(() => {
+    const statusBarHeight =
+      Platform.OS === "ios" ? insets.top : StatusBar.currentHeight || 0;
+    const bottomInset = insets.bottom;
+    const headerHeight = 60;
+    const tabBarHeight = 50;
+
+    return (
+      height - (statusBarHeight + bottomInset + headerHeight + tabBarHeight)
+    );
+  }, [height, insets]);
 
   const contextState = useContext(Context);
   const theme = contextState?.theme ?? "light";

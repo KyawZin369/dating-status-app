@@ -48,6 +48,9 @@ export default function TabLayout() {
             case "profile":
               iconName = focused ? "person" : "person-outline";
               break;
+            case "status":
+              iconName = focused ? "heart" : "heart-outline";
+              break;
             default:
               iconName = "ellipse-outline";
               break;
@@ -62,6 +65,13 @@ export default function TabLayout() {
         name="home"
         options={{
           tabBarLabel: "Home",
+        }}
+      />
+      <Tabs.Screen
+        key="Status"
+        name="status"
+        options={{
+          tabBarLabel: "Status",
         }}
       />
       <Tabs.Screen
